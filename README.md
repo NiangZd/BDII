@@ -135,17 +135,6 @@ Com o backend em execução, você pode acessar as interfaces do frontend direta
 
 - **🚚 Página de Fornecedores:**  
   [http://localhost:8080/fornecedores.html](http://localhost:8080/fornecedores.html)
-
----
-
-## 🤝 Contribuições
-
-Contribuições são bem-vindas!  
-Você pode:
-
-- Criar *issues* para relatar bugs ou sugerir melhorias
-- Enviar *pull requests* com correções ou novas funcionalidades
-
 ---
 
 ## 📄 Licença
