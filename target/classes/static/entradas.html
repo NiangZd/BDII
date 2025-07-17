@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Entradas de Estoque</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        form div {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="date"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            width: 100%;
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        button.primary {
+            background-color: #007bff;
+            color: white;
+        }
+        button.primary:hover {
+            background-color: #0056b3;
+        }
+        button.secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+        button.danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        button.danger:hover {
+            background-color: #c82333;
+        }
+        .form-actions {
+            grid-column: 1 / -1; /* Spans across all columns */
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #555;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #eaeaea;
+        }
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .feedback-message {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .feedback-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .feedback-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+        .feedback-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+        @media (max-width: 600px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Gerenciamento de Entradas de Estoque</h1>
+
+    <div id="feedback" class="feedback-message" style="display: none;"></div>
+
+    <h2>Cadastrar / Editar Entrada</h2>
+    <form id="entradaForm">
+        <input type="hidden" id="entradaId">
+
+        <div>
+            <label for="camisaId">ID da Camisa:</label>
+            <input type="text" id="camisaId" required placeholder="Ex: 60d5ec49f7e34d1b8c0a1b2c">
+        </div>
+
+        <div>
+            <label for="fornecedorId">ID do Fornecedor:</label>
+            <input type="text" id="fornecedorId" required placeholder="Ex: 60d5ec49f7e34d1b8c0a1b2d">
+        </div>
+
+        <div>
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" id="quantidade" required min="1">
+        </div>
+
+        <div>
+            <label for="dataEntrada">Data de Entrada (Opcional):</label>
+            <input type="date" id="dataEntrada">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="primary">Salvar Entrada</button>
+            <button type="button" class="secondary" id="limparFormBtn">Limpar Formulário</button>
+        </div>
+    </form>
+
+    <h2>Entradas de Estoque Atuais</h2>
+    <table id="entradasTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID Camisa</th>
+            <th>ID Fornecedor</th>
+            <th>Quantidade</th>
+            <th>Data Entrada</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const apiUrl = 'http://localhost:8080/entradas';
+    const entradaForm = document.getElementById('entradaForm');
+    const entradaIdInput = document.getElementById('entradaId');
+    const camisaIdInput = document.getElementById('camisaId');
+    const fornecedorIdInput = document.getElementById('fornecedorId');
+    const quantidadeInput = document.getElementById('quantidade');
+    const dataEntradaInput = document.getElementById('dataEntrada');
+    const entradasTableBody = document.querySelector('#entradasTable tbody');
+    const limparFormBtn = document.getElementById('limparFormBtn');
+    const feedbackDiv = document.getElementById('feedback');
+
+    // Função para exibir mensagens de feedback
+    function showFeedback(message, type) {
+        feedbackDiv.textContent = message;
+        feedbackDiv.className = 'feedback-message'; // Reset classes
+        if (type === 'success') {
+            feedbackDiv.classList.add('feedback-success');
+        } else if (type === 'error') {
+            feedbackDiv.classList.add('feedback-error');
+        } else if (type === 'info') {
+            feedbackDiv.classList.add('feedback-info');
+        }
+        feedbackDiv.style.display = 'block';
+        // Opcional: esconder a mensagem após alguns segundos
+        setTimeout(() => {
+            feedbackDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    // Função para limpar o formulário
+    function limparFormulario() {
+        entradaIdInput.value = '';
+        camisaIdInput.value = '';
+        fornecedorIdInput.value = '';
+        quantidadeInput.value = '';
+        dataEntradaInput.value = '';
+        entradaForm.querySelector('button[type="submit"]').textContent = 'Salvar Entrada';
+        showFeedback('Formulário limpo.', 'info');
+    }
+
+    // Função para listar as entradas de estoque
+    async function listarEntradas() {
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erro ao carregar entradas: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            const entradas = await response.json();
+            entradasTableBody.innerHTML = ''; // Limpa a tabela
+            if (entradas.length === 0) {
+                entradasTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Nenhuma entrada de estoque cadastrada.</td></tr>';
+                return;
+            }
+            entradas.forEach(entrada => {
+                const row = entradasTableBody.insertRow();
+                row.innerHTML = `
+                        <td>${entrada.id}</td>
+                        <td>${entrada.camisaId}</td>
+                        <td>${entrada.fornecedorId}</td>
+                        <td>${entrada.quantidade}</td>
+                        <td>${entrada.dataEntrada || 'N/A'}</td>
+                        <td class="table-actions">
+                            <button class="secondary" onclick="editarEntrada('${entrada.id}')">Editar</button>
+                            <button class="danger" onclick="deletarEntrada('${entrada.id}')">Deletar</button>
+                        </td>
+                    `;
+            });
+            showFeedback('Entradas carregadas com sucesso.', 'success');
+        } catch (error) {
+            console.error('Erro ao listar entradas:', error);
+            showFeedback(`Erro ao listar entradas: ${error.message || error}`, 'error');
+        }
+    }
+
+    // Função para salvar ou atualizar uma entrada
+    entradaForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Impede o envio padrão do formulário
+
+        const id = entradaIdInput.value;
+        const entradaData = {
+            camisaId: camisaIdInput.value.trim(),
+            fornecedorId: fornecedorIdInput.value.trim(),
+            quantidade: parseInt(quantidadeInput.value),
+            dataEntrada: dataEntradaInput.value || null // Envia null se vazio, backend pode auto-gerar
+        };
+
+        // Validação simples
+        if (!entradaData.camisaId || !entradaData.fornecedorId || isNaN(entradaData.quantidade) || entradaData.quantidade <= 0) {
+            showFeedback('Por favor, preencha todos os campos obrigatórios (ID Camisa, ID Fornecedor, Quantidade) com valores válidos.', 'error');
+            return;
+        }
+
+        try {
+            let response;
+            let method;
+            let url = apiUrl;
+
+            if (id) { // Se tem ID, é atualização (PUT)
+                method = 'PUT';
+                url = `${apiUrl}/${id}`;
+            } else { // Se não tem ID, é criação (POST)
+                method = 'POST';
+            }
+
+            response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(entradaData)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erro ao ${id ? 'atualizar' : 'criar'} entrada: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+
+            showFeedback(`Entrada ${id ? 'atualizada' : 'criada'} com sucesso!`, 'success');
+            limparFormulario();
+            listarEntradas(); // Recarrega a lista
+        } catch (error) {
+            console.error(`Erro ao salvar entrada:`, error);
+            showFeedback(`Erro ao salvar entrada: ${error.message || error}`, 'error');
+        }
+    });
+
+    // Função para carregar dados para edição
+    async function editarEntrada(id) {
+        try {
+            const response = await fetch(`${apiUrl}/${id}`);
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar entrada para edição: ${response.status} ${response.statusText}`);
+            }
+            const entrada = await response.json();
+            entradaIdInput.value = entrada.id;
+            camisaIdInput.value = entrada.camisaId;
+            fornecedorIdInput.value = entrada.fornecedorId;
+            quantidadeInput.value = entrada.quantidade;
+            dataEntradaInput.value = entrada.dataEntrada || ''; // Se data é null, use string vazia
+
+            entradaForm.querySelector('button[type="submit"]').textContent = 'Atualizar Entrada';
+            showFeedback('Entrada carregada para edição.', 'info');
+        } catch (error) {
+            console.error('Erro ao editar entrada:', error);
+            showFeedback(`Erro ao carregar entrada para edição: ${error.message || error}`, 'error');
+        }
+    }
+
+    // Função para deletar uma entrada
+    async function deletarEntrada(id) {
+        if (!confirm('Tem certeza que deseja deletar esta entrada de estoque?')) {
+            return;
+        }
+        try {
+            const response = await fetch(`${apiUrl}/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Erro ao deletar entrada: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+
+            showFeedback('Entrada deletada com sucesso!', 'success');
+            listarEntradas(); // Recarrega a lista
+        } catch (error) {
+            console.error('Erro ao deletar entrada:', error);
+            showFeedback(`Erro ao deletar entrada: ${error.message || error}`, 'error');
+        }
+    }
+
+    // Event Listeners
+    limparFormBtn.addEventListener('click', limparFormulario);
+
+    // Carregar as entradas quando a página carregar
+    window.onload = () => listarEntradas();
+</script>
+</body>
+</html>

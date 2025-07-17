@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Estoque de Camisas de Time</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(to right, #ece9e6, #ffffff);
+      padding: 3rem;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .container {
+      background-color: #ffffff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      padding: 2.5rem;
+      margin-top: 2rem;
+    }
+    h1, h4 {
+      color: #2c3e50;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    .form-section, .table-section {
+      background-color: #f9fbfd;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    .form-control {
+      border-radius: 8px;
+      border: 1px solid #ced4da;
+      padding: 0.75rem 1rem;
+    }
+    .form-control:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+      transform: translateY(-2px);
+    }
+    .btn-success {
+      background-color: #28a745;
+      border-color: #28a745;
+      border-radius: 5px;
+    }
+    .btn-danger {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      border-radius: 5px;
+    }
+    .btn-info {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      border-radius: 5px;
+      color: white;
+    }
+    .table {
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .table thead {
+      background-color: #e9ecef;
+    }
+    .table th {
+      color: #495057;
+      font-weight: 600;
+      padding: 1rem;
+    }
+    .table td {
+      vertical-align: middle;
+      padding: 1rem;
+    }
+    .table tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+    .alert {
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border-color: #c3e6cb;
+    }
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-color: #f5c6cb;
+    }
+    /* Estilos para os botões de ação na tabela */
+    .action-buttons button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 class="text-center mb-5"><i class="fas fa-tshirt"></i> Sistema de Estoque de Camisas de Time</h1>
+
+  <div id="feedbackMessage" class="alert d-none" role="alert"></div>
+
+  <div class="form-section">
+    <h4 id="formTitle">Cadastrar Nova Camisa</h4>
+    <form id="camisaForm">
+      <input type="hidden" id="camisaId"> <div class="row g-3">
+      <div class="col-md-6">
+        <label for="nome" class="form-label">Nome da Camisa</label>
+        <input type="text" class="form-control" id="nome" placeholder="Ex: Camisa Away 2024" required>
+      </div>
+      <div class="col-md-6">
+        <label for="time" class="form-label">Time</label>
+        <input type="text" class="form-control" id="time" placeholder="Ex: Flamengo" required>
+      </div>
+      <div class="col-md-4">
+        <label for="tamanho" class="form-label">Tamanho</label>
+        <select class="form-select" id="tamanho" required>
+          <option value="">Selecione...</option>
+          <option value="P">P</option>
+          <option value="M">M</option>
+          <option value="G">G</option>
+          <option value="GG">GG</option>
+        </select>
+      </div>
+      <div class="col-md-4">
+        <label for="quantidade" class="form-label">Quantidade</label>
+        <input type="number" class="form-control" id="quantidade" placeholder="Ex: 10" min="0" required>
+      </div>
+      <div class="col-md-4">
+        <label for="preco" class="form-label">Preço (R$)</label>
+        <input type="number" step="0.01" class="form-control" id="preco" placeholder="Ex: 249.90" min="0" required>
+      </div>
+    </div>
+      <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-save"></i> <span id="saveButtonText">Salvar</span></button>
+        <button type="button" class="btn btn-secondary" id="cancelEditButton" style="display: none;"><i class="fas fa-times-circle"></i> Cancelar Edição</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="form-section">
+    <h4><i class="fas fa-search"></i> Buscar Camisas</h4>
+    <div class="input-group">
+      <input type="text" class="form-control" id="searchName" placeholder="Buscar por nome da camisa...">
+      <button class="btn btn-info" type="button" id="searchButton"><i class="fas fa-search"></i> Buscar</button>
+      <button class="btn btn-secondary" type="button" id="clearSearchButton" style="display: none;"><i class="fas fa-eraser"></i> Limpar Busca</button>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <h4><i class="fas fa-list-alt"></i> Camisas em Estoque</h4>
+    <div class="table-responsive">
+      <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Time</th>
+          <th>Tamanho</th>
+          <th>Quantidade</th>
+          <th>Preço</th>
+          <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody id="camisasTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+  const apiUrl = 'http://localhost:8080/camisas';
+
+  const camisaForm = document.getElementById('camisaForm');
+  const camisaIdInput = document.getElementById('camisaId');
+  const nomeInput = document.getElementById('nome');
+  const timeInput = document.getElementById('time');
+  const tamanhoInput = document.getElementById('tamanho');
+  const quantidadeInput = document.getElementById('quantidade');
+  const precoInput = document.getElementById('preco');
+  const camisasTableBody = document.getElementById('camisasTableBody');
+  const formTitle = document.getElementById('formTitle');
+  const saveButtonText = document.getElementById('saveButtonText');
+  const cancelEditButton = document.getElementById('cancelEditButton');
+  const feedbackMessage = document.getElementById('feedbackMessage');
+  const searchNameInput = document.getElementById('searchName');
+  const searchButton = document.getElementById('searchButton');
+  const clearSearchButton = document.getElementById('clearSearchButton');
+
+  let editingCamisaId = null;
+  async function showFeedback(message, type = 'success', errorResponse = null) {
+    let displayMessage = message;
+
+    if (errorResponse) {
+      try {
+        const errorData = await errorResponse.json();
+        if (errorData && errorData.message) {
+          displayMessage += `: ${errorData.message}`;
+        } else if (errorData && errorData.error) {
+          displayMessage += `: ${errorData.error}`;
+        } else {
+          displayMessage += `: ${errorResponse.status} ${errorResponse.statusText}`;
+        }
+      } catch (e) {
+        displayMessage += `: ${errorResponse.status} ${errorResponse.statusText}`;
+      }
+    } else if (typeof errorResponse === 'string') {
+      displayMessage += `: ${errorResponse}`;
+    }
+
+
+    feedbackMessage.textContent = displayMessage;
+    feedbackMessage.className = `alert alert-${type} d-block`;
+    setTimeout(() => {
+      feedbackMessage.className = 'alert d-none';
+    }, 6000);
+  }
+
+  window.onload = () => listarCamisas();
+
+  async function listarCamisas(searchTerm = '') {
+    try {
+      let url = apiUrl;
+      if (searchTerm) {
+        url = `${apiUrl}/buscar?nome=${encodeURIComponent(searchTerm)}`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw response;
+      }
+      const camisas = await response.json();
+      camisasTableBody.innerHTML = '';
+
+      if (camisas.length === 0 && searchTerm) {
+        camisasTableBody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhuma camisa encontrada com o nome "${searchTerm}".</td></tr>`;
+        return;
+      } else if (camisas.length === 0) {
+        camisasTableBody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhuma camisa cadastrada.</td></tr>`;
+        return;
+      }
+
+      camisas.forEach(camisa => {
+        const row = `
+          <tr>
+            <td>${camisa.nome || 'N/A'}</td>
+            <td>${camisa.time || 'N/A'}</td>
+            <td>${camisa.tamanho || 'N/A'}</td>
+            <td>${camisa.quantidade !== undefined ? camisa.quantidade : 'N/A'}</td>
+            <td>R$ ${camisa.preco !== undefined ? camisa.preco.toFixed(2).replace('.', ',') : 'N/A'}</td>
+            <td class="action-buttons">
+              <button class="btn btn-success btn-sm me-2" onclick="editarCamisa('${camisa.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-danger btn-sm" onclick="deletarCamisa('${camisa.id}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `;
+        camisasTableBody.innerHTML += row;
+      });
+    } catch (error) {
+      console.error("Erro ao listar camisas:", error);
+      if (error instanceof Response) {
+        showFeedback('Erro ao carregar o estoque', 'danger', error);
+      } else {
+        showFeedback('Erro de conexão ao carregar o estoque. Verifique se o servidor está online.', 'danger', error.message || error);
+      }
+    }
+  }
+
+  async function salvarOuAtualizarCamisa(e) {
+    e.preventDefault();
+
+    const camisaData = {
+      nome: nomeInput.value,
+      time: timeInput.value,
+      tamanho: tamanhoInput.value,
+      quantidade: parseInt(quantidadeInput.value) || 0,
+      preco: parseFloat(precoInput.value) || 0.0
+    };
+
+    try {
+      let response;
+      if (editingCamisaId) {
+        response = await fetch(`${apiUrl}/${editingCamisaId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(camisaData)
+        });
+        if (!response.ok) {
+          throw response;
+        }
+        showFeedback('Camisa atualizada com sucesso!');
+      } else {
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(camisaData)
+        });
+        if (!response.ok) {
+          throw response;
+        }
+        showFeedback('Camisa cadastrada com sucesso!');
+      }
+
+      camisaForm.reset();
+      resetFormMode();
+      listarCamisas();
+    } catch (error) {
+      console.error("Erro ao salvar/atualizar camisa:", error);
+      if (error instanceof Response) {
+        showFeedback('Erro ao salvar/atualizar camisa', 'danger', error);
+      } else {
+        showFeedback('Erro de conexão ao salvar/atualizar camisa.', 'danger', error.message || error);
+      }
+    }
+  }
+
+  async function editarCamisa(id) {
+    try {
+      const response = await fetch(`${apiUrl}/${id}`);
+      if (!response.ok) {
+        throw response;
+      }
+      const camisa = await response.json();
+
+      camisaIdInput.value = camisa.id;
+      nomeInput.value = camisa.nome;
+      timeInput.value = camisa.time;
+      tamanhoInput.value = camisa.tamanho;
+      quantidadeInput.value = camisa.quantidade;
+      precoInput.value = camisa.preco;
+
+      editingCamisaId = id;
+      formTitle.textContent = 'Editar Camisa Existente';
+      saveButtonText.textContent = 'Atualizar';
+      cancelEditButton.style.display = 'inline-block';
+    } catch (error) {
+      console.error("Erro ao carregar camisa para edição:", error);
+      if (error instanceof Response) {
+        showFeedback('Erro ao carregar camisa para edição', 'danger', error);
+      } else {
+        showFeedback('Erro de conexão ao carregar camisa para edição.', 'danger', error.message || error);
+      }
+    }
+  }
+
+  async function deletarCamisa(id) {
+    if (!confirm('Tem certeza que deseja excluir esta camisa?')) {
+      return;
+    }
+    try {
+      const response = await fetch(`${apiUrl}/${id}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        throw response;
+      }
+      showFeedback('Camisa excluída com sucesso!');
+      listarCamisas();
+    } catch (error) {
+      console.error("Erro ao deletar camisa:", error);
+      if (error instanceof Response) {
+        showFeedback('Erro ao excluir camisa', 'danger', error);
+      } else {
+        showFeedback('Erro de conexão ao excluir camisa.', 'danger', error.message || error);
+      }
+    }
+  }
+
+  function resetFormMode() {
+    editingCamisaId = null;
+    formTitle.textContent = 'Cadastrar Nova Camisa';
+    saveButtonText.textContent = 'Salvar';
+    cancelEditButton.style.display = 'none';
+    camisaForm.reset();
+  }
+
+  camisaForm.addEventListener('submit', salvarOuAtualizarCamisa);
+
+  cancelEditButton.addEventListener('click', resetFormMode);
+
+  searchButton.addEventListener('click', () => {
+    const searchTerm = searchNameInput.value.trim();
+    if (searchTerm) {
+      listarCamisas(searchTerm);
+      clearSearchButton.style.display = 'inline-block';
+    } else {
+      showFeedback('Por favor, digite um nome para buscar.', 'info');
+    }
+  });
+
+  clearSearchButton.addEventListener('click', () => {
+    searchNameInput.value = '';
+    listarCamisas();
+    clearSearchButton.style.display = 'none';
+  });
+
+  searchNameInput.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+      searchButton.click();
+    }
+    if (searchNameInput.value.trim() === '' && clearSearchButton.style.display === 'inline-block') {
+      clearSearchButton.click();
+    }
+  });
+</script>
+
+</body>
+</html>
