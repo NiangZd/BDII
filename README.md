@@ -54,8 +54,9 @@ Gerencia informações das empresas fornecedoras:
 ## 📥 Como Clonar o Repositório
 
 ```bash
-git clone <URL_DO_SEU_REPOSITORIO>
+git clone <https://github.com/NiangZd/BDII.git>
 cd <nome-da-pasta-do-seu-projeto>
+```
 
 ## 📦 Como Instalar as Dependências
 
@@ -90,6 +91,64 @@ Após clonar o repositório, navegue até a pasta raiz do projeto (onde está o 
 
 - **Linux/macOS**: Use um dos comandos abaixo, conforme sua instalação:
 
+```bash
+  sudo systemctl start mongod
 ```
 
-## oii
+ou
+
+```bash
+  brew services start mongodb-community
+```
+
+A aplicação Spring Boot está configurada para conectar ao MongoDB em `localhost:27017`, utilizando o banco de dados `camisasdb`.
+
+---
+
+## ▶️ Executar o Backend (Spring Boot)
+
+Com o terminal aberto na pasta raiz do projeto (onde está o arquivo `pom.xml`), execute o seguinte comando:
+
+```bash
+mvn spring-boot:run
+```
+
+Isso irá:
+
+- ✅ Compilar o projeto (se necessário)
+- 🚀 Iniciar o servidor Spring Boot
+- 🌐 Disponibilizar a aplicação em: [http://localhost:8080](http://localhost:8080)
+
+Você verá logs no terminal indicando que a aplicação foi iniciada com sucesso.
+
+---
+
+## 🌐 Acessar o Frontend
+
+Com o backend em execução, você pode acessar as interfaces do frontend diretamente no navegador. As páginas estão localizadas na pasta `src/main/resources/static` e são servidas automaticamente pelo Spring Boot.
+
+- **🧥 Página de Camisas:**  
+  [http://localhost:8080/index.html](http://localhost:8080/index.html)
+
+- **📦 Página de Entradas de Estoque:**  
+  [http://localhost:8080/entradas.html](http://localhost:8080/entradas.html)
+
+- **🚚 Página de Fornecedores:**  
+  [http://localhost:8080/fornecedores.html](http://localhost:8080/fornecedores.html)
+
+---
+
+## 🤝 Contribuições
+
+Contribuições são bem-vindas!  
+Você pode:
+
+- Criar *issues* para relatar bugs ou sugerir melhorias
+- Enviar *pull requests* com correções ou novas funcionalidades
+
+---
+
+## 📄 Licença
+
+Este projeto é livre para uso **educacional ou pessoal**.  
+Distribuído sob uma **licença aberta**.
