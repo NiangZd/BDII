@@ -136,3 +136,75 @@ Com o backend em execução, você pode acessar as interfaces do frontend direta
 - **🚚 Página de Fornecedores:**  
   [http://localhost:8080/fornecedores.html](http://localhost:8080/fornecedores.html)
 ---
+
+## 🗄️ Banco de Dados
+
+A aplicação utiliza o banco de dados **MongoDB**, com três coleções:
+
+- `camisas`
+- `fornecedores`
+- `entradas`
+
+### 🔧 Configuração (MongoDB Local)
+
+O projeto está configurado para se conectar a um servidor MongoDB local na porta **27017**, utilizando o banco de dados `camisasdb`.
+
+Configuração no arquivo `application.properties`:
+```properties
+spring.application.name=bandodados
+spring.data.mongodb.database=camisasdb
+spring.data.mongodb.uri=mongodb://localhost:27017
+server.port=8080
+```
+
+> 🔔 **Importante:** Certifique-se de que o MongoDB esteja instalado e em execução no momento da execução da aplicação.
+
+Você pode verificar se o serviço está ativo com o comando:
+
+### Windows:
+Abra o terminal (Prompt de Comando ou PowerShell) e execute:
+
+```bash
+net start MongoDB
+```
+
+ou verifique em *Serviços* se o **"MongoDB"** está em execução.
+
+Se não estiver, você pode iniciá-lo manualmente por lá ou reiniciar sua máquina (caso o serviço esteja configurado para iniciar automaticamente).
+
+---
+
+## 📥 Dados de Exemplo
+
+Caso deseje testar a aplicação com dados prontos, você pode importar os arquivos `.json` de exemplo (fornecidos no repositório) usando os comandos abaixo:
+
+```bash
+mongoimport --db camisasdb --collection camisas --file camisas.json --jsonArray
+mongoimport --db camisasdb --collection fornecedores --file fornecedores.json --jsonArray
+mongoimport --db camisasdb --collection entradas --file entradas.json --jsonArray
+```
+
+Os arquivos devem estar na raiz do projeto ou você pode ajustar o caminho conforme necessário.
+
+---
+
+## ✅ Resumo da Configuração do Banco
+
+- Banco utilizado: **MongoDB** local
+- Banco de dados: `camisasdb`
+- Configuração no `application.properties`:
+
+```properties
+spring.application.name=bandodados
+spring.data.mongodb.database=camisasdb
+spring.data.mongodb.uri=mongodb://localhost:27017
+server.port=8080
+```
+
+MongoDB deve estar instalado e rodando localmente antes de iniciar a aplicação.
+
+---
+
+## 📋 Importante
+
+- Verifique se o serviço do MongoDB está ativo antes de iniciar a aplicação.
