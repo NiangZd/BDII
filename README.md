@@ -89,6 +89,7 @@ Após clonar o repositório, navegue até a pasta raiz do projeto (onde está o 
 - **Windows**: O MongoDB é normalmente iniciado como serviço automaticamente. Verifique em "Serviços" do sistema.
 
 - **Linux/macOS**: Use um dos comandos abaixo, conforme sua instalação:
-  ```bash
-  sudo systemctl start mongod
 
+```
+
+## oii
